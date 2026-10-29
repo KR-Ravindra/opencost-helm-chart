@@ -47,3 +47,20 @@ tests:
           content:
             name: PROMETHEUS_SERVER_ENDPOINT
             value: http://prometheus-server.prometheus-system.svc.legacy.internal:80
+
+  - it: should drop the domain suffix when clusterDomain is empty
+    template: templates/deployment.yaml
+    set:
+      clusterDomain: ""
+      opencost.prometheus.thanos.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PROMETHEUS_SERVER_ENDPOINT
+            value: http://prometheus-server.prometheus-system.svc:80
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: THANOS_QUERY_URL
+            value: http://my-thanos-query.opencost.svc:10901
